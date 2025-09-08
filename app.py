@@ -18,7 +18,7 @@ if not os.path.exists(SIMILARITY_FILE):
 
 # Load data
 movies = pickle.load(open("movies.pkl", "rb"))  # list of dicts with title + tmdb_id
-similarity = np.load(SIMILARITY_FILE)          # numpy array
+similarity = np.load("similarity_compressed.npz")["arr_0"]          # numpy array
 
 TMDB_API_KEY = "dc837d8573a26d40aae28bd55f7b8a16"
 
