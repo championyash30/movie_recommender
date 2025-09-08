@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import pickle
 import numpy as np
 import requests
+import os  # for getting the PORT from environment
 
 app = Flask(__name__)
 
@@ -52,4 +53,5 @@ def index():
                            selected=selected_movie, TMDB_API_KEY=TMDB_API_KEY)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # use Render's PORT or default 5000
+    app.run(host="0.0.0.0", port=port)
