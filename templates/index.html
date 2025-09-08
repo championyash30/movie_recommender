@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Recommender</title>
+<style>
+    body {
+        background-color: #111;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+    }
+    input[type="text"] {
+        width: 300px;
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        margin-bottom: 5px;
+        position: relative;
+        z-index: 1;
+    }
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #e50914;
+        color: white;
+        cursor: pointer;
+    }
+    .movies {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 30px;
+    }
+    .movie-card {
+        position: relative;
+        width: 200px;
+        transition: transform 0.3s;
+        cursor: pointer;
+    }
+    .movie-card img {
+        width: 100%;
+        border-radius: 10px;
+    }
+    .movie-card:hover {
+        transform: scale(1.1);
+    }
+    .movie-card .title {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: rgba(0,0,0,0.7);
+        padding: 5px;
+        font-size: 14px;
+        border-radius: 0 0 10px 10px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .movie-card:hover .title {
+        opacity: 1;
+    }
+
+    /* Autocomplete dropdown below input */
+    #autocomplete-list {
+        position: absolute;
+        background-color: #111;
+        border: 1px solid #444;
+        max-height: 200px;
+        overflow-y: auto;
+        width: 300px;
+        margin: 0 auto;
+        left: 0; right: 0;
+        z-index: 999;
+        border-radius: 5px;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    #autocomplete-list.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    #autocomplete-list div {
+        padding: 10px;
+        cursor: pointer;
+        color: #fff;
+        transition: background-color 0.2s;
+    }
+    #autocomplete-list div:hover {
+        background-color: #222;
+    }
+</style>
+</head>
+<body>
+    <h1>Movie Recommender</h1>
+    <form id="movieForm" method="POST" autocomplete="off">
+        <input type="text" name="movie" id="movieInput" placeholder="Type a movie name" required>
+        <button type="submit">Recommend</button>
+        <div id="autocomplete-list"></div>
+    </form>
+
+    {% if recommended %}
+    <h2>Recommendations for "{{ selected }}"</h2>
+    <div class="movies">
+        {% for r in recommended %}
+        <div class="movie-card">
+            <img src="{{ r.poster }}" alt="{{ r.title }}">
+            <div class="title">{{ r.title }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+<script>
+    const movieList = JSON.parse('{{ movies|tojson|safe }}');
+    const input = document.getElementById('movieInput');
+    const list = document.getElementById('autocomplete-list');
+
+    input.addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        list.innerHTML = '';
+        if (!val) {
+            list.classList.remove('show');
+            return;
+        }
+
+        const matches = movieList.filter(m => m.toLowerCase().includes(val)).slice(0, 5);
+        matches.forEach(m => {
+            const div = document.createElement('div');
+            div.textContent = m;
+            div.addEventListener('click', function() {
+                input.value = m;
+                list.innerHTML = '';
+                list.classList.remove('show');
+                document.getElementById('movieForm').submit();
+            });
+            list.appendChild(div);
+        });
+
+        if (matches.length > 0) {
+            list.classList.add('show');
+        } else {
+            list.classList.remove('show');
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target !== input) {
+            list.innerHTML = '';
+            list.classList.remove('show');
+        }
+    });
+</script>
+</body>
+</html>
