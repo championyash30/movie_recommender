@@ -2,23 +2,17 @@ from flask import Flask, render_template, request
 import pickle
 import numpy as np
 import requests
-import os  # for PORT and file checks
+import os  # for getting the PORT from environment
 
 app = Flask(__name__)
 
-# --- Handle similarity.npy from Google Drive ---
-SIMILARITY_FILE = "similarity.npy"
-FILE_URL = "https://drive.google.com/uc?export=download&id=1IZa-up-iz5Ov4GjRCerYp9FZQp1dHGGz"
-
-if not os.path.exists(SIMILARITY_FILE):
-    print("Downloading similarity.npy from Google Drive...")
-    r = requests.get(FILE_URL)
-    with open(SIMILARITY_FILE, "wb") as f:
-        f.write(r.content)
-
 # Load data
 movies = pickle.load(open("movies.pkl", "rb"))  # list of dicts with title + tmdb_id
-similarity = np.load("similarity_compressed.npz")["arr_0"]          # numpy array
+
+# Load compressed similarity matrix
+# (your file was saved without a key, so NumPy defaulted to "arr_0")
+similarity_uint8 = np.load("similarity_final.npz")["arr_0"]
+similarity = similarity_uint8.astype(np.float32) / 255.0  # scale back to [0, 1]
 
 TMDB_API_KEY = "dc837d8573a26d40aae28bd55f7b8a16"
 
@@ -63,5 +57,5 @@ def index():
                            selected=selected_movie, TMDB_API_KEY=TMDB_API_KEY)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Render provides PORT
+    port = int(os.environ.get("PORT", 5000))  # use Render's PORT or default 5000
     app.run(host="0.0.0.0", port=port)
