@@ -31,8 +31,8 @@ Step 🚀	Description
 🚀 Deployment	Built for the cloud: Render configs, Python versions, requirement management
 🚀 Quick Start
 bash
-git clone https://github.com/yourusername/movie-recommendation-system.git
-cd movie-recommendation-system
+git clone https://github.com/championyash30/movie_recommender.git
+cd movie_recommender
 pip install -r requirements.txt
 1️⃣ Place TMDB datasets in /data
 2️⃣ Add TMDB API Key to your environment
